@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub User Info</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        img {
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <h1 class="text-center mb-4">GitHub User Info</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="input-group mb-3">
+                    <input type="text" id="username" class="form-control" placeholder="Enter GitHub username" />
+                    <button id="fetchUser" class="btn btn-primary">Fetch User Info</button>
+                </div>
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('fetchUser').addEventListener('click', async () => {
+            const username = document.getElementById('username').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!username) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-warning" role="alert">
+                        Please enter a username.
+                    </div>`;
+                return;
+            }
+
+            const apiUrl = `https://api.github.com/users/${username}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error('User not found');
+                const userData = await response.json();
+
+                resultDiv.innerHTML = `
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <img src="${userData.avatar_url}" alt="Avatar" width="120" class="mb-3">
+                            <h2>${userData.name || userData.login}</h2>
+                            <p class="text-muted">@${userData.login}</p>
+                            <p>${userData.bio || 'No bio available.'}</p>
+                            <div class="row">
+                                <div class="col">
+                                    <p><strong>${userData.public_repos}</strong><br>Repos</p>
+                                </div>
+                                <div class="col">
+                                    <p><strong>${userData.followers}</strong><br>Followers</p>
+                                </div>
+                                <div class="col">
+                                    <p><strong>${userData.following}</strong><br>Following</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        Error: ${error.message}
+                    </div>`;
+            }
+        });
+    </script>
+</body>
+</html>
